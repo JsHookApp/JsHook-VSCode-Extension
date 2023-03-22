@@ -1,0 +1,111 @@
+{
+  "name": "jshook-vscode-extension",
+  "displayName": "JsHook-VSCode-Extension",
+  "description": "",
+  "version": "0.0.1",
+  "publisher": "JsonET",
+  "icon": "assets/logo.png",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/JsHookApp"
+  },
+  "keywords": [
+    "jshook"
+  ],
+  "engines": {
+    "vscode": "^1.76.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "command_pushfile",
+        "title": "推送脚本(Push Script)"
+      },
+      {
+        "command": "command_pullfile",
+        "title": "获取脚本(Pull Script)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "activitybarview",
+          "title": "JsHook",
+          "icon": "assets/icon_fe.svg"
+        }
+      ]
+    },
+    "views": {
+      "activitybarview": [
+        {
+          "id": "activitybarview_home",
+          "type": "webview",
+          "name": ""
+        }
+      ]
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "command_pushfile",
+          "group": "jshook@1",
+          "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+        },
+        {
+          "command": "command_pullfile",
+          "group": "jshook@2",
+          "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "command_pushfile",
+          "group": "jshook@1",
+          "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+        },
+        {
+          "command": "command_pullfile",
+          "group": "jshook@2",
+          "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "command_pushfile",
+        "key": "alt+shift+d",
+        "mac": "cmd+shift+d",
+        "when": "editorTextFocus && resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+      },
+      {
+        "command": "command_pullfile",
+        "key": "alt+shift+c",
+        "mac": "cmd+shift+c",
+        "when": "editorTextFocus && resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "yarn run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.76.0",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "eslint": "^8.34.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^4.9.5",
+    "@vscode/test-electron": "^2.2.3"
+  }
+}
