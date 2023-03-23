@@ -26,11 +26,11 @@
     "commands": [
       {
         "command": "command_pushfile",
-        "title": "推送脚本(Push Script)"
+        "title": "JsHook - Push Script"
       },
       {
         "command": "command_pullfile",
-        "title": "获取脚本(Pull Script)"
+        "title": "JsHook - Pull Script"
       }
     ],
     "viewsContainers": {

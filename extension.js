@@ -98,7 +98,7 @@ async function activate(context) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('command_pushfile', async (resource) => {
-			vscode.window.showInputBox({ prompt: '输入 JsHook 服务端 IP 地址(Enter JsHook server IP address)', value: defaultValue }).then(async (input) => {
+			vscode.window.showInputBox({ prompt: 'Enter JsHook server IP address', value: defaultValue }).then(async (input) => {
 				if (input) {
 					const fileinfo = await getfile(resource);
 					defaultValue = input
@@ -107,12 +107,14 @@ async function activate(context) {
 						'path': fileinfo[0],
 						'name': fileinfo[1],
 						'data': fileinfo[2]
-					}));
+					}), (result) => {
+						vscode.window.showInformationMessage('Push Script Success!');
+					});
 				}
 			});
 		}),
 		vscode.commands.registerCommand('command_pullfile', async (resource) => {
-			vscode.window.showInputBox({ prompt: '输入 JsHook 服务端 IP 地址(Enter JsHook server IP address)', value: defaultValue }).then(async (input) => {
+			vscode.window.showInputBox({ prompt: 'Enter JsHook server IP address', value: defaultValue }).then(async (input) => {
 				if (input) {
 					const fileinfo = await getfilepath(resource);
 					defaultValue = input
@@ -123,13 +125,12 @@ async function activate(context) {
 						result = result.toString();
 						result = JSON.parse(result);
 						vscode.workspace.fs.writeFile(vscode.Uri.file(fileinfo[1]), Buffer.from(result['data'], 'utf-8'));
+						vscode.window.showInformationMessage('Pull Script Success!');
 					});
 				}
 			});
 		})
 	)
-
-	// vscode.window.showInformationMessage('Welcome JsHook-VSCode-Extension!');
 }
 
 async function deactivate() { }
