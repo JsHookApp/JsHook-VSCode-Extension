@@ -22,34 +22,53 @@ async function activate(context) {
 			},
 		})
 	);
+	let logwebview = null;
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider('panelview_log', {
+			resolveWebviewView: (webviewView) => {
+				webviewView.webview.options = {
+					enableScripts: true,
+				};
+				logwebview = webviewView;
+			},
+		})
+	);
 
 	const socketServer = {
-		socket: null,
 		sendData: (input, data, fun = null) => {
-			this.socket = net.createConnection(9358, input);
-			this.socket.on('connect', () => {
+			let buffer = '';
+			let socket = net.createConnection(9358, input);
+			socket.on('connect', () => {
 				console.log('Connected to server.');
-				this.socket.write(data + "\n")
+				socket.write(data + "\n")
 			});
-			this.socket.on('data', (data) => {
-				console.log(`Received data: ${data}`);
-				this.socket.destroy();
-				fun && fun(data);
+			socket.on('data', (data) => {
+				buffer += data;
+				let index;
+				while ((index = buffer.indexOf('\n')) !== -1) {
+					const message = buffer.slice(0, index);
+					// console.log(`Received data: ${message}`);
+					try {
+						fun && fun(message);
+					} catch (e) {
+						vscode.window.showErrorMessage(e.message);
+					}
+					buffer = buffer.slice(index + 2);
+				}
 			});
-			this.socket.on('error', (error) => {
+			socket.on('error', (error) => {
 				vscode.window.showErrorMessage(`Socket error: ${error}`);
 			});
-			this.socket.on('close', () => {
+			socket.on('close', () => {
 				console.log('Socket closed.');
-				this.socket = null;
 			});
 		}
 	};
 
 	const getfile = async (resource) => {
-		var fileContent;
-		var fileName;
-		var filePath;
+		let fileContent;
+		let fileName;
+		let filePath;
 		if (
 			resource &&
 			resource.scheme === 'file' &&
@@ -71,13 +90,13 @@ async function activate(context) {
 				fileContent = editor.document.getText();
 			}
 		}
-		console.log('FileContent:' + filePath + ':' + fileContent.toString());
+		console.log('FileContent:' + filePath + ':' + fileContent.length);
 		return [filePath, fileName, fileContent.toString()];
 	}
 
 	const getfilepath = async (resource) => {
-		var filePath;
-		var filePathP;
+		let filePath;
+		let filePathP;
 		if (
 			resource &&
 			resource.scheme === 'file' &&
@@ -94,11 +113,32 @@ async function activate(context) {
 		return [filePath, filePathP];
 	}
 
+	const rsynclist = [];
+
+	const rsynclog = function (input) {
+		if (!rsynclist[input]) {
+			rsynclist[input] = setInterval(function () {
+				clearInterval(rsynclist[input]);
+				socketServer.sendData(input, JSON.stringify({
+					'type': 'rsynclog'
+				}), (result) => {
+					result = JSON.parse(result);
+					logwebview.webview.html = result['data'].replace(/\n/g, '<br/>');
+				});
+			}, 1000);
+			vscode.window.showInformationMessage('Rsync Log Start!');
+		} else {
+			clearInterval(rsynclist[input]);
+			delete rsynclist[input];
+			vscode.window.showInformationMessage('Rsync Log Stop!');
+		}
+	}
+
 	let defaultValue;
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('command_pushfile', async (resource) => {
-			vscode.window.showInputBox({ prompt: 'Enter JsHook server IP address', value: defaultValue }).then(async (input) => {
+			vscode.window.showInputBox({ prompt: 'PushFile - Enter JsHook server IP address', value: defaultValue }).then(async (input) => {
 				if (input) {
 					const fileinfo = await getfile(resource);
 					defaultValue = input
@@ -114,7 +154,7 @@ async function activate(context) {
 			});
 		}),
 		vscode.commands.registerCommand('command_pullfile', async (resource) => {
-			vscode.window.showInputBox({ prompt: 'Enter JsHook server IP address', value: defaultValue }).then(async (input) => {
+			vscode.window.showInputBox({ prompt: 'PullFile - Enter JsHook server IP address', value: defaultValue }).then(async (input) => {
 				if (input) {
 					const fileinfo = await getfilepath(resource);
 					defaultValue = input
@@ -122,11 +162,31 @@ async function activate(context) {
 						'type': 'pullfile',
 						'path': fileinfo[0]
 					}), (result) => {
-						result = result.toString();
 						result = JSON.parse(result);
 						vscode.workspace.fs.writeFile(vscode.Uri.file(fileinfo[1]), Buffer.from(result['data'], 'utf-8'));
 						vscode.window.showInformationMessage('Pull Script Success!');
 					});
+				}
+			});
+		}),
+		vscode.commands.registerCommand('command_clearlog', async (resource) => {
+			vscode.window.showInputBox({ prompt: 'ClearLog - Enter JsHook server IP address', value: defaultValue }).then(async (input) => {
+				if (input) {
+					defaultValue = input
+					socketServer.sendData(input, JSON.stringify({
+						'type': 'clearlog'
+					}), (result) => {
+						vscode.window.showInformationMessage('Clear Log Success!');
+						logwebview.webview.html = '';
+					});
+				}
+			});
+		}),
+		vscode.commands.registerCommand('command_rsynclog', async (resource) => {
+			vscode.window.showInputBox({ prompt: 'RsyncLog - Enter JsHook server IP address', value: defaultValue }).then(async (input) => {
+				if (input) {
+					defaultValue = input
+					rsynclog(input);
 				}
 			});
 		})

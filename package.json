@@ -2,7 +2,7 @@
   "name": "jshook-vscode-extension",
   "displayName": "JsHook-VSCode-Extension",
   "description": "",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "JsonET",
   "icon": "assets/logo.png",
   "repository": {
@@ -31,6 +31,14 @@
       {
         "command": "command_pullfile",
         "title": "JsHook - Pull Script"
+      },
+      {
+        "command": "command_clearlog",
+        "title": "JsHook - Clear Log"
+      },
+      {
+        "command": "command_rsynclog",
+        "title": "JsHook - Rsync Log"
       }
     ],
     "viewsContainers": {
@@ -40,12 +48,26 @@
           "title": "JsHook",
           "icon": "assets/icon_fe.svg"
         }
+      ],
+      "panel": [
+        {
+          "id": "panelview",
+          "title": "JsHookLog",
+          "icon": "assets/icon_fe.svg"
+        }
       ]
     },
     "views": {
       "activitybarview": [
         {
           "id": "activitybarview_home",
+          "type": "webview",
+          "name": ""
+        }
+      ],
+      "panelview": [
+        {
+          "id": "panelview_log",
           "type": "webview",
           "name": ""
         }
@@ -62,6 +84,16 @@
           "command": "command_pullfile",
           "group": "jshook@2",
           "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+        },
+        {
+          "command": "command_clearlog",
+          "group": "jshook@3",
+          "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+        },
+        {
+          "command": "command_rsynclog",
+          "group": "jshook@4",
+          "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
         }
       ],
       "explorer/context": [
@@ -73,6 +105,16 @@
         {
           "command": "command_pullfile",
           "group": "jshook@2",
+          "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+        },
+        {
+          "command": "command_clearlog",
+          "group": "jshook@3",
+          "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+        },
+        {
+          "command": "command_rsynclog",
+          "group": "jshook@4",
           "when": "resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
         }
       ]
@@ -88,6 +130,18 @@
         "command": "command_pullfile",
         "key": "alt+shift+c",
         "mac": "cmd+shift+c",
+        "when": "editorTextFocus && resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+      },
+      {
+        "command": "command_clearlog",
+        "key": "alt+shift+f",
+        "mac": "cmd+shift+f",
+        "when": "editorTextFocus && resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
+      },
+      {
+        "command": "command_rsynclog",
+        "key": "alt+shift+g",
+        "mac": "cmd+shift+g",
         "when": "editorTextFocus && resourceFilename =~ /\\.js$/ && resourceScheme == 'file'"
       }
     ]
