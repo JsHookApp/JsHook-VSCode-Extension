@@ -113,12 +113,12 @@ async function activate(context) {
 		return [filePath, filePathP];
 	}
 
-	const rsynclist = [];
+	let rsyncid = null;
+	let rsynctime = null;
 
 	const rsynclog = function (input) {
-		if (!rsynclist[input]) {
-			rsynclist[input] = setInterval(function () {
-				clearInterval(rsynclist[input]);
+		let run = function () {
+			rsynctime = setInterval(function () {
 				socketServer.sendData(input, JSON.stringify({
 					'type': 'rsynclog'
 				}), (result) => {
@@ -127,10 +127,19 @@ async function activate(context) {
 				});
 			}, 1000);
 			vscode.window.showInformationMessage('Rsync Log Start!');
+			rsyncid = input;
+		};
+		if (!rsynctime) {
+			run();
 		} else {
-			clearInterval(rsynclist[input]);
-			delete rsynclist[input];
-			vscode.window.showInformationMessage('Rsync Log Stop!');
+			clearInterval(rsynctime);
+			rsynctime = null;
+			if (rsyncid != input) {
+				run();
+			} else {
+				vscode.window.showInformationMessage('Rsync Log Stop!');
+				rsyncid = null;
+			}
 		}
 	}
 
