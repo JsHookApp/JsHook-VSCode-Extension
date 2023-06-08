@@ -123,7 +123,9 @@ async function activate(context) {
 					'type': 'rsynclog'
 				}), (result) => {
 					result = JSON.parse(result);
-					logwebview.webview.html = result['data'].replace(/\n/g, '<br/>');
+					if (logwebview != null) {
+						logwebview.webview.html = result['data'].replace(/\n/g, '<br/>');
+					}
 				});
 			}, 1000);
 			vscode.window.showInformationMessage('Rsync Log Start!');
@@ -186,7 +188,9 @@ async function activate(context) {
 						'type': 'clearlog'
 					}), (result) => {
 						vscode.window.showInformationMessage('Clear Log Success!');
-						logwebview.webview.html = '';
+						if (logwebview != null) {
+							logwebview.webview.html = '';
+						}
 					});
 				}
 			});
