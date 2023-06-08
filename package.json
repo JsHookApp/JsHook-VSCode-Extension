@@ -2,7 +2,7 @@
   "name": "jshook-vscode-extension",
   "displayName": "JsHook-VSCode-Extension",
   "description": "",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "JsonET",
   "icon": "assets/logo.png",
   "repository": {
